@@ -61,4 +61,9 @@ class OrderController extends Controller
         }
 
     }
+
+    public function getOrders()
+    {
+        return Order::where('customer_id', auth()->user()->id)->get();
+    }
 }

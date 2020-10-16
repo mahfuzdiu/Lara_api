@@ -8,19 +8,40 @@ use Illuminate\Http\Request;
 class CartController extends Controller
 {
     public function addToCart(Request $request){
-        foreach ($request->all() as $cartItem){
-            $cartItem = (object)  $cartItem;
-            if(!$cart = Cart::where('user_id', auth()->user()->id)->where('product_id', $cartItem->product_id)->first()){
-                Cart::create([
-                    'user_id' => auth()->user()->id,
-                    'product_id' => $cartItem->product_id,
-                    'name' => $cartItem->name,
-                    'quantity' => $cartItem->quantity
-                ]);
-            }else{
-                $cart->quantity = $cartItem->quantity;
-            }
+        if(!$cart = Cart::where('user_id', auth()->user()->id)->where('product_id', $request->id)->first()){
+            Cart::create([
+                'user_id' => auth()->user()->id,
+                'product_id' => $request->id,
+                'name' => $request->name,
+                'quantity' => 1
+            ]);
         }
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function getCartProducts()
+    {
+        return  response()->json(Cart::where('user_id', auth()->user()->id)->get());
+    }
+
+    public function incrementItem($id)
+    {
+        $cart =  Cart::where('user_id', auth()->user()->id)->where('id', $id)->first();
+        $cart->update([
+            'quantity' => $cart->quantity + 1
+        ]);
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function decrementItem($id)
+    {
+        $cart =  Cart::where('user_id', auth()->user()->id)->where('id', $id)->first();
+        $cart->update([
+            'quantity' => $cart->quantity - 1
+        ]);
+
         return response()->json(['status' => 'success']);
     }
 
